@@ -1,10 +1,12 @@
 package main
 
 import (
+	"os"
+
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
-	_ "github.com/shiro1n/go-commerce/cmd/user-service/docs"
 	"github.com/shiro1n/go-commerce/internal/user/handler"
+	"github.com/shiro1n/go-commerce/pkg/database"
 	echoSwagger "github.com/swaggo/echo-swagger"
 )
 
@@ -21,12 +23,23 @@ import (
 // @BasePath /
 
 func main() {
+	// Load environment variables
+	mongoURI := os.Getenv("MONGODB_URI")
+	if mongoURI == "" {
+		mongoURI = "mongodb://mongo:27017"
+	}
+
+	// Connect to MongoDB
+	database.ConnectMongoDB(mongoURI)
+
 	e := echo.New()
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
 
 	// Routes
 	e.GET("/", handler.Hello)
+	e.POST("/users", handler.CreateUser)
+	e.GET("/users/:email", handler.GetUserByEmail)
 
 	// Swagger
 	e.GET("/swagger/*", echoSwagger.WrapHandler)
