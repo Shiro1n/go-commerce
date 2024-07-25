@@ -12,7 +12,8 @@ RUN go mod download
 COPY . .
 
 # Build the application
-RUN go build -o main ./cmd/user-service
+WORKDIR /app/cmd/user-service
+RUN CGO_ENABLED=0 GOOS=linux go build -o main
 
 # Use a minimal base image
 FROM alpine:latest
@@ -21,7 +22,10 @@ FROM alpine:latest
 WORKDIR /root/
 
 # Copy the compiled binary from the builder stage
-COPY --from=builder /app/main .
+COPY --from=builder /app/cmd/user-service/main .
+
+# Ensure the binary has execute permissions
+RUN chmod +x ./main
 
 # Expose the application port
 EXPOSE 8080

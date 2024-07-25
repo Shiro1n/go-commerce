@@ -15,15 +15,26 @@ spec:
       containers:
         - name: user-service
           image: shiroin/user-service:latest
-          imagePullPolicy: Always  # Ensure Kubernetes always pulls the latest image
+          imagePullPolicy: Always
           ports:
             - containerPort: 8080
           env:
-            - name: POSTGRES_CONN
-              value: "host=postgres-service port=5432 user=youruser password=yourpassword dbname=yourdb sslmode=disable"
+            - name: DB_HOST
+              value: postgres-service
+            - name: DB_NAME
+              value: yourdb
+            - name: DB_PASSWORD
+              value: yourpassword
+            - name: DB_USER
+              value: youruser
+            - name: DB_PORT
+              value: "5432"
           livenessProbe:
             httpGet:
               path: /healthz
               port: 8080
             initialDelaySeconds: 3
             periodSeconds: 10
+        - name: debug-container
+          image: busybox
+          command: ["sh", "-c", "while true; do sleep 30; done;"]
