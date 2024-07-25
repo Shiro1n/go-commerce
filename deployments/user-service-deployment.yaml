@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: user-service
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: user-service
+  template:
+    metadata:
+      labels:
+        app: user-service
+    spec:
+      containers:
+        - name: user-service
+          image: shiroin/user-service:latest
+          imagePullPolicy: Always  # Ensure Kubernetes always pulls the latest image
+          ports:
+            - containerPort: 8080
+          env:
+            - name: POSTGRES_CONN
+              value: "host=postgres-service port=5432 user=youruser password=yourpassword dbname=yourdb sslmode=disable"
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 8080
+            initialDelaySeconds: 3
+            periodSeconds: 10
