@@ -2,8 +2,9 @@ package main
 
 import (
 	"log"
-	"net/http"
 
+	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 	"github.com/shiro1n/go-commerce/user-service/internal/config"
 	"github.com/shiro1n/go-commerce/user-service/internal/database"
 	"github.com/shiro1n/go-commerce/user-service/internal/handler"
@@ -22,6 +23,15 @@ func main() {
 	userService := service.NewUserService(userRepo)
 	userHandler := handler.NewUserHandler(userService)
 
-	http.HandleFunc("/users", userHandler.GetUsers)
-	log.Fatal(http.ListenAndServe(":8080", nil))
+	e := echo.New()
+
+	// Middleware
+	e.Use(middleware.Logger())
+	e.Use(middleware.Recover())
+
+	// Routes
+	e.GET("/users", userHandler.GetUsers)
+
+	// Start server
+	e.Logger.Fatal(e.Start(":8080"))
 }

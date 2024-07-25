@@ -3,6 +3,7 @@ package handler
 import (
 	"net/http"
 
+	"github.com/labstack/echo/v4"
 	"github.com/shiro1n/go-commerce/user-service/internal/service"
 )
 
@@ -14,13 +15,10 @@ func NewUserHandler(userService service.UserService) *UserHandler {
 	return &UserHandler{UserService: userService}
 }
 
-func (h *UserHandler) GetUsers(w http.ResponseWriter, r *http.Request) {
+func (h *UserHandler) GetUsers(c echo.Context) error {
 	users, err := h.UserService.GetAllUsers()
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
+		return c.JSON(http.StatusInternalServerError, map[string]string{"error": err.Error()})
 	}
-	for _, user := range users {
-		w.Write([]byte(user.Username + "\n"))
-	}
+	return c.JSON(http.StatusOK, users)
 }
