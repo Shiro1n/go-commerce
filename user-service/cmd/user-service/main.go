@@ -29,8 +29,11 @@ func main() {
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
 
-	// Routes
+	// User routes
 	e.GET("/users", userHandler.GetUsers)
+	e.GET("/users/:username", userHandler.GetUserByUsername)
+	e.GET("/users/id/:user-id", userHandler.GetUserById)
+	e.POST("/register", userHandler.Register)
 
 	// Start server
 	e.Logger.Fatal(e.Start(":8080"))

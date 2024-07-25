@@ -6,22 +6,21 @@ import (
 	"github.com/shiro1n/go-commerce/user-service/internal/model"
 )
 
-// UserRepository interface
 type UserRepository interface {
 	FindAll() ([]model.User, error)
+	FindByUsername(username string) (*model.User, error)
+	FindById(id int) (*model.User, error)
+	Create(user *model.User) error
 }
 
-// userRepository struct
 type userRepository struct {
 	DB *sql.DB
 }
 
-// NewUserRepository creates a new UserRepository
 func NewUserRepository(db *sql.DB) UserRepository {
 	return &userRepository{DB: db}
 }
 
-// FindAll returns all users
 func (r *userRepository) FindAll() ([]model.User, error) {
 	rows, err := r.DB.Query("SELECT id, username, email FROM users")
 	if err != nil {
@@ -38,4 +37,27 @@ func (r *userRepository) FindAll() ([]model.User, error) {
 		users = append(users, user)
 	}
 	return users, nil
+}
+
+func (r *userRepository) FindByUsername(username string) (*model.User, error) {
+	row := r.DB.QueryRow("SELECT id, username, email, password FROM users WHERE username = $1", username)
+	var user model.User
+	if err := row.Scan(&user.ID, &user.Username, &user.Email, &user.Password); err != nil {
+		return nil, err
+	}
+	return &user, nil
+}
+
+func (r *userRepository) FindById(userId int) (*model.User, error) {
+	row := r.DB.QueryRow("SELECT id, username, email, password FROM users WHERE id = $1", userId)
+	var user model.User
+	if err := row.Scan(&user.ID, &user.Username, &user.Email, &user.Password); err != nil {
+		return nil, err
+	}
+	return &user, nil
+}
+
+func (r *userRepository) Create(user *model.User) error {
+	_, err := r.DB.Exec("INSERT INTO users (username, email, password) VALUES ($1, $2, $3)", user.Username, user.Email, user.Password)
+	return err
 }
