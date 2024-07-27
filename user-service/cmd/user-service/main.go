@@ -24,17 +24,13 @@ func main() {
 	userHandler := handler.NewUserHandler(userService)
 
 	e := echo.New()
-
-	// Middleware
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
 
-	// User routes
-	e.GET("/users", userHandler.GetUsers)
-	e.GET("/users/:username", userHandler.GetUserByUsername)
-	e.GET("/users/id/:user-id", userHandler.GetUserById)
-	e.POST("/register", userHandler.Register)
+	e.GET("/users/:id", userHandler.GetUserById)
+	e.POST("/users", userHandler.CreateUser)
+	e.PUT("/users/:id", userHandler.UpdateUser)
+	e.DELETE("/users/:id", userHandler.DeleteUser)
 
-	// Start server
 	e.Logger.Fatal(e.Start(":8080"))
 }

@@ -1,17 +1,15 @@
 package service
 
 import (
-	"errors"
-
 	"github.com/shiro1n/go-commerce/user-service/internal/model"
 	"github.com/shiro1n/go-commerce/user-service/internal/repository"
 )
 
 type UserService interface {
-	GetAllUsers() ([]model.User, error)
-	GetUserByUsername(username string) (*model.User, error)
-	RegisterUser(username, email, password string) (*model.User, error)
-	GetUserById(id int) (*model.User, error)
+	GetUserById(userId int) (*model.User, error)
+	CreateUser(user *model.User) error
+	UpdateUser(user *model.User) error
+	DeleteUser(userId int) error
 }
 
 type userService struct {
@@ -22,35 +20,18 @@ func NewUserService(userRepo repository.UserRepository) UserService {
 	return &userService{UserRepo: userRepo}
 }
 
-func (s *userService) GetAllUsers() ([]model.User, error) {
-	return s.UserRepo.FindAll()
-}
-
-func (s *userService) GetUserByUsername(username string) (*model.User, error) {
-	return s.UserRepo.FindByUsername(username)
-}
-
 func (s *userService) GetUserById(userId int) (*model.User, error) {
 	return s.UserRepo.FindById(userId)
 }
 
-func (s *userService) RegisterUser(username, email, password string) (*model.User, error) {
-	// Check if the username already exists
-	existingUser, _ := s.UserRepo.FindByUsername(username)
-	if existingUser != nil {
-		return nil, errors.New("username already taken")
-	}
+func (s *userService) CreateUser(user *model.User) error {
+	return s.UserRepo.Create(user)
+}
 
-	// Create the new user
-	user := &model.User{
-		Username: username,
-		Email:    email,
-		Password: password, // Add proper password hashing
-	}
-	err := s.UserRepo.Create(user)
-	if err != nil {
-		return nil, err
-	}
+func (s *userService) UpdateUser(user *model.User) error {
+	return s.UserRepo.Update(user)
+}
 
-	return user, nil
+func (s *userService) DeleteUser(userId int) error {
+	return s.UserRepo.Delete(userId)
 }
