@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: auth-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: auth-service
+  template:
+    metadata:
+      labels:
+        app: auth-service
+    spec:
+      containers:
+        - name: auth-service
+          image: shiroin/auth-service:latest
+          ports:
+            - containerPort: 8080
+          env:
+            - name: DB_HOST
+              value: "your-db-host"
+            - name: DB_PORT
+              value: "your-db-port"
+            - name: DB_USER
+              value: "your-db-user"
+            - name: DB_PASSWORD
+              value: "your-db-password"
+            - name: DB_NAME
+              value: "your-db-name"
+            - name: REDIS_HOST
+              value: "redis"
+            - name: REDIS_PORT
+              value: "6379"
+            - name: JWT_SECRET
+              value: "your-jwt-secret"
+            - name: USER_SERVICE_URL
+              value: "http://user-service:8080"
